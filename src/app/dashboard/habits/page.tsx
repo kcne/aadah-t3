@@ -1,20 +1,32 @@
+'use client'
 import React from 'react'
 import HabitCard from '~/app/_components/dashboard/habits/habit-card';
-import { useToast } from '~/app/_components/ui/use-toast';
-import { api } from '~/trpc/server'
+import { Button } from '~/app/_components/ui/button';
+import { api } from '~/trpc/react'
+import { PlusSquare } from 'lucide-react';
+import { Dialog, DialogTrigger } from '~/app/_components/ui/dialog';
+import HabitDialog from '~/app/_components/dashboard/habits/habit-dialog';
 
-async function Habits({}) {
+function Habits({}) {
   // const hello = await api.post.hello.query({ text: "from tRPC" });
-  const habits =  await api.habit.getAllHabits.query();
+  const {data:habits} = api.habit.getAllHabits.useQuery();
+  
+
   return (
-    <div className='h-full w-full p-10'>
+    <Dialog>
+    <div className='h-full w-full p-10 pt-5'>
+      <DialogTrigger asChild>
+      <Button variant="outline">
+        Add new habit <PlusSquare size={18} className='ml-1.5'/>
+      </Button>
+      </DialogTrigger>
       {
         habits &&
-        <div className='mx-auto w-[400px] flex flex-col justify-start border border-zinc-200 rounded-xl p-3'>
+        <div className='mx-auto w-full mt-5 flex flex-col justify-start border border-zinc-200 rounded-xl p-3'>
           
           {
             habits.map(habit =>
-                <HabitCard habit={habit} priority={habit.priority}/>
+                <HabitCard key={habit.id} habit={habit} priority={habit.priority}/>
               )
           }
 
@@ -22,6 +34,8 @@ async function Habits({}) {
       }
 
     </div>
+    <HabitDialog/>
+    </Dialog>
   )
 }
 

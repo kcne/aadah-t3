@@ -11,6 +11,6 @@
   },
   "aliases": {
     "components": "/src/app/_components",
-    "utils": "/src/utils"
+    "utils": "~/utils/utils"
   }
 }

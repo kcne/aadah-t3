@@ -2,10 +2,11 @@
 import React from 'react'
 import Image from "next/image"
 import Link from 'next/link';
-import { Button } from '~/app/_components/ui/button';
+import { Button, buttonVariants } from '~/app/_components/ui/button';
 import { Avatar, AvatarFallback } from '~/app/_components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '~/app/_components/ui/dropdown-menu';
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
+import { cn } from '~/utils/utils';
 
 interface Props {
     email:string | undefined,
@@ -70,9 +71,12 @@ function UserAccountNav({email,imageUrl,name}: Props) {
       <DropdownMenuSeparator />
 
       <DropdownMenuItem className='cursor-pointer text-sm px-2 hover:bg-slate-100'>
-              <Button className='w-full max-h-5' variant='ghost' >
+              <Link  className={cn(buttonVariants({
+                variant:'ghost',
+                className:'w-full max-h-5'
+              }))}  href='/api/auth/signout'>
                 Sign out
-              </Button>
+              </Link>
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>

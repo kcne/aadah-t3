@@ -47,7 +47,7 @@ function NavContent({ session=null,className, ...props}: Props) {
             <Link className={cn(buttonVariants({
                 variant:'default',
                 size:'sm'
-            }))}  href='/api/auth/signout'>Get Starterted <ArrowRight className='ml-2 h-5 w-5'/></Link>
+            }))} href='/api/auth/signin' >Get Starterted <ArrowRight className='ml-2 h-5 w-5'/></Link>
     </>
         ):
         (
@@ -56,7 +56,6 @@ function NavContent({ session=null,className, ...props}: Props) {
                 href='/dashboard'
                 className={buttonVariants({
                 variant: 'ghost',
-                size: 'sm',
                 })}>
                 Dashboard
             </Link>

@@ -1,12 +1,15 @@
 'use client'
 import type { Habit, Priority } from '@prisma/client'
-import { ChevronDownIcon, CircleIcon, PlusIcon, StarIcon, Check, FastForward } from 'lucide-react'
+import { ChevronDownIcon, CircleIcon, PlusIcon, Check, FastForward } from 'lucide-react'
 import React from 'react'
+import toast from 'react-hot-toast'
 import { Button } from '~/app/_components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/app/_components/ui/card'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '~/app/_components/ui/dropdown-menu'
 import { Separator } from '~/app/_components/ui/separator'
-import { useToast } from '~/app/_components/ui/use-toast'
+import { api } from '~/trpc/react'
+import { useGlobalAudioPlayer } from 'react-use-audio-player';
+
 
 interface Props {
     habit: Habit
@@ -14,10 +17,29 @@ interface Props {
 } 
 
 
+
+
 function HabitCard({habit, priority}: Props) {
- const { toast } = useToast()
+  const { load } = useGlobalAudioPlayer();
+
+
+    const utils = api.useUtils();
+    // const { mutate, error } =  api.habit.createHabitEntry.useMutation();
+    const habitEntry = api.habit.createHabitEntry.useMutation({
+        onSuccess: async () => {
+            toast.success(`${habit.title}`);
+            load('/success.mp3', {
+              autoplay: true
+            });
+            await utils.habit.getAllHabits.invalidate();
+
+        },
+      });
+
+      console.log(habitEntry.error);
+
   return (
-    <Card>
+    <Card className='max-w-[400px]'>
     <CardHeader className="grid grid-cols-[1fr_110px] items-start gap-4 space-y-0 pr-8">
       <div className="space-y-1">
         <CardTitle>{habit.title}</CardTitle>
@@ -26,13 +48,12 @@ function HabitCard({habit, priority}: Props) {
         </CardDescription>
       </div>
       <div className="flex items-center space-x-1 rounded-md bg-secondary text-secondary-foreground">
-        <Button variant="secondary" className="px-3 shadow-none" onClick={()=>{
-        toast({
-            title: `Checked: ${habit.title}`,
-            description: new Date().toString(),
-            variant:'success'
-            })
-        }}>
+        <Button variant="secondary" className="px-3 shadow-none" onClick={
+        ()=>{
+            const habitId = habit.id
+            habitEntry.mutate({ habitId });
+
+        }} >
           <Check className="mr-2 h-4 w-4" />
           Check
         </Button> 
@@ -84,3 +105,7 @@ function HabitCard({habit, priority}: Props) {
 }
 
 export default HabitCard
+
+function async(id: string) {
+    throw new Error('Function not implemented.')
+}

@@ -2,9 +2,10 @@ import "~/styles/globals.css";
 
 import { Inter } from "next/font/google";
 import { cookies } from "next/headers";
+import { Toaster } from 'react-hot-toast';
+
 
 import { TRPCReactProvider } from "~/trpc/react";
-import { Toaster } from "./_components/ui/toaster";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,7 +29,7 @@ export default function RootLayout({
         <TRPCReactProvider cookies={cookies().toString()}>
           {children}
         </TRPCReactProvider>
-        <Toaster />
+        <Toaster position='bottom-right'/>
       </body>
     </html>
   );
