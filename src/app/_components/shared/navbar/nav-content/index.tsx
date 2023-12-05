@@ -15,9 +15,6 @@ interface Props extends BaseHTMLAttributes<HTMLElement>{
 
 
 function NavContent({ session=null,className, ...props}: Props) {
-    console.log(session);
-
-    // console.log(user);
   return (
     <div className={cn('flex h-14 items-center justify-between border-b border-zinc-200 px-5', className)} {...props}>
     <Link href='/' className='flex z-40 font-semibold text-xl gap-1.5 items-center' >

@@ -1,5 +1,4 @@
 'use client'
-import type { Habit, Priority } from '@prisma/client'
 import { ChevronDownIcon, CircleIcon, PlusIcon, Check, FastForward } from 'lucide-react'
 import React from 'react'
 import toast from 'react-hot-toast'
@@ -9,19 +8,20 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { Separator } from '~/app/_components/ui/separator'
 import { api } from '~/trpc/react'
 import { useGlobalAudioPlayer } from 'react-use-audio-player';
+import type { HabitWithPriority } from '~/types'
 
 
 interface Props {
-    habit: Habit
-    priority: Priority | null
+    habit: HabitWithPriority,
+    setSelectedHabit:React.Dispatch<React.SetStateAction<HabitWithPriority | undefined>>
+    setOpen:React.Dispatch<React.SetStateAction<boolean>>
 } 
 
 
 
 
-function HabitCard({habit, priority}: Props) {
+function HabitCard({habit, setSelectedHabit, setOpen}: Props) {
   const { load } = useGlobalAudioPlayer();
-
 
     const utils = api.useUtils();
     // const { mutate, error } =  api.habit.createHabitEntry.useMutation();
@@ -36,9 +36,8 @@ function HabitCard({habit, priority}: Props) {
         },
       });
 
-      console.log(habitEntry.error);
-
   return (
+    <>
     <Card className='max-w-[400px]'>
     <CardHeader className="grid grid-cols-[1fr_110px] items-start gap-4 space-y-0 pr-8">
       <div className="space-y-1">
@@ -52,7 +51,6 @@ function HabitCard({habit, priority}: Props) {
         ()=>{
             const habitId = habit.id
             habitEntry.mutate({ habitId });
-
         }} >
           <Check className="mr-2 h-4 w-4" />
           Check
@@ -70,10 +68,13 @@ function HabitCard({habit, priority}: Props) {
             className="w-[200px]"
             forceMount
           >
-            <DropdownMenuLabel>Suggested Lists</DropdownMenuLabel>
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuCheckboxItem checked>
-              Future Ideas
+            <DropdownMenuCheckboxItem onClick={()=>{
+              setSelectedHabit(habit);
+              setOpen(true);
+            }}>
+              Edit
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem>My Stack</DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem>Inspiration</DropdownMenuCheckboxItem>
@@ -88,9 +89,9 @@ function HabitCard({habit, priority}: Props) {
     <CardContent>
       <div className="flex space-x-4 text-sm text-muted-foreground">
        
-       {priority && <div className="flex items-center">
+       {habit.priority && <div className="flex items-center">
           <CircleIcon className="mr-1 h-3 w-3 fill-yellow-400 text-yellow-400" />
-          {priority.title}
+          {habit.priority.title}
         </div>
         }
         <div className="flex items-center">
@@ -101,11 +102,9 @@ function HabitCard({habit, priority}: Props) {
       </div>
     </CardContent>
   </Card>
+  </>
   )
 }
 
 export default HabitCard
 
-function async(id: string) {
-    throw new Error('Function not implemented.')
-}

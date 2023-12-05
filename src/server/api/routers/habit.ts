@@ -5,11 +5,42 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 
+
+const createHabitSchema = z.object({
+  title: z.string().min(2),
+  description: z.string().min(2),
+  priorityId: z.string().optional(),
+});
+
+const createHabitEntrySchema = z.object({ 
+  habitId: z.string().min(1) 
+});
+
+
+const updateHabitSchema = z.object({
+  id: z.string().uuid().min(1),
+  title: z.string().min(2),
+  description: z.string().min(2),
+  priorityId: z.string().optional(),
+});
+
+
 export const habitRouter = createTRPCRouter({
+  createNewHabit: protectedProcedure
+  .input(createHabitSchema)
+  .mutation(async ({ctx, input})=>{
+    return await ctx.db.habit.create({
+      data:{
+        title:input.title,
+        description:input.description,
+        createdBy: { connect: { id: ctx.session.user.id } },
+        priority: input.priorityId? {connect: { id: input.priorityId}}:undefined,
+      }
+    })
+  }),
 
-
-  getAllHabits: protectedProcedure.query(({ ctx }) => {
-    return ctx.db.habit.findMany({
+  getAllHabits: protectedProcedure.query(async({ ctx }) => {
+    return await ctx.db.habit.findMany({
       orderBy: { createdAt: "desc" },
       where: { createdBy: { id: ctx.session.user.id } },
       include: {
@@ -18,8 +49,27 @@ export const habitRouter = createTRPCRouter({
     });
   }),
 
+  updateHabit: protectedProcedure
+  .input(updateHabitSchema)
+  .mutation(async ({ ctx, input }) => {
+    // await ctx.db.habit.findUniqueOrThrow({
+    //   where:{id:input.id}
+    // })
+
+    return await ctx.db.habit.update({
+      where: { id: input.id },
+      data: { 
+        title:input.title,
+        description:input.description,
+        createdBy: { connect: { id: ctx.session.user.id } },
+        priority: input.priorityId? {connect: { id: input.priorityId}}:undefined,
+      },
+    })
+
+  }),
+
   createHabitEntry: protectedProcedure
-  .input(z.object({ habitId: z.string().min(1) }))
+  .input(createHabitEntrySchema)
   .mutation(async ({ ctx, input }) => {
     // Start a transaction
     return ctx.db.$transaction(async (prisma) => {
@@ -71,5 +121,5 @@ export const habitRouter = createTRPCRouter({
       return newEntry;
     });
   }),
-
 });
+

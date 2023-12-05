@@ -1,27 +1,17 @@
 'use client'
 import type { Habit } from '@prisma/client'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Button } from '~/app/_components/ui/button'
 import { DialogHeader,DialogContent, DialogDescription, DialogTitle, DialogFooter  } from '~/app/_components/ui/dialog'
 import { Input } from '~/app/_components/ui/input'
-import { Label } from '~/app/_components/ui/label'
-
 import * as z from "zod"
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '~/app/_components/ui/form'
-
-
-// title            String
-// description      String?
-// createdAt        DateTime     @default(now())
-// updatedAt        DateTime     @updatedAt
-// createdById      String
-// priorityId       String?
-// currentStreak    Int          @default(0)
-// lastStreakUpdate DateTime     @default(now())
-// priority         Priority?    @relation(fields: [priorityId], references: [id])
-// createdBy        User         @relation(fields: [createdById], references: [id])
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '~/app/_components/ui/form'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/app/_components/ui/select'
+import { api } from '~/trpc/react'
+import toast from 'react-hot-toast'
+import type { HabitWithPriority } from '~/types'
 
 const habitFormSchema = z.object({
     title: z.string().min(2, {
@@ -30,36 +20,63 @@ const habitFormSchema = z.object({
     description: z.string().min(2, {
         message: "Description must be at least 2 characters.",
     }),
-    priorityId: z.string().uuid().nullable(),
+    priorityId: z.string().optional(),
 
   })
 
 interface Props {
-    habit?:Habit
+    habit?:Habit | undefined
+    setOpen:React.Dispatch<React.SetStateAction<boolean>>
+    setSelectedHabit:React.Dispatch<React.SetStateAction<HabitWithPriority | undefined>>
 }
 
-function HabitDialog({}: Props) {
+function HabitDialog({setOpen,habit, setSelectedHabit}: Props) {
+  const {data:priorities} = api.priority.getAllPriorities.useQuery();
+  const utils = api.useUtils();
+
+  const createNewHabit = api.habit.createNewHabit.useMutation({
+    onSuccess: async (data) => {
+        toast.success(`${data.title} created successfully.`);
+        await utils.habit.getAllHabits.invalidate();
+        habitForm.reset();
+        setOpen(false);
+    },
+    onError: async (error) =>{
+      toast.error(error.message);
+    }
+  });
+
+  const defaultValues= {
+    title: habit?.title??"",
+    description:habit?.description??"",
+    priorityId:habit?.priorityId??""
+  }
+
     const habitForm = useForm<z.infer<typeof habitFormSchema>>({
         resolver: zodResolver(habitFormSchema),
-        defaultValues: {
-          title: "",
-          description:"",
-          priorityId:"",
-        },
+        defaultValues:defaultValues
       })
 
+      useEffect(() => {
+        habitForm.reset(defaultValues);
+        console.log('selectedHabit',habit)
+      }, [habit])
+      
+
+
+      
 
     function onSubmit(values: z.infer<typeof habitFormSchema>) {
-      // Do something with the form values.
-      // ✅ This will be type-safe and validated.
-      console.log(values)
+      createNewHabit.mutate(values);
+      setSelectedHabit(undefined);
     }
   return (
 <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Habit</DialogTitle>
+          <DialogTitle>{habit?'Edit Habit':'Add New Habit'}</DialogTitle>
           <DialogDescription>
-            Add your new habit details here. Click save when you're done.
+          {habit?`Edit your selected habit. Click save when you're done.`:`Add your new habit details here. Click save when you're done.`}
+           
           </DialogDescription>
         </DialogHeader>
         <Form {...habitForm}>
@@ -92,6 +109,30 @@ function HabitDialog({}: Props) {
                 </FormItem>
               )}
             />
+          <FormField
+          control={habitForm.control}
+          name="priorityId"
+          render={({ field }) => (
+            <FormItem className='py-2'>
+              <FormLabel>Priority</FormLabel>
+              <Select onValueChange={field.onChange}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Priority" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {
+                    priorities?.map((priority)=>
+                    <SelectItem key={priority.id} value={priority.id}>{priority.title}</SelectItem>
+                    )
+                  }
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
             {/* <Label htmlFor="name" className="text-right">
               Name
             </Label>
@@ -100,7 +141,7 @@ function HabitDialog({}: Props) {
         </div>
 
         <DialogFooter>
-          <Button type="submit">Save changes</Button>
+            <Button type="submit">Save changes</Button>
         </DialogFooter>
         </form>
         </Form>
