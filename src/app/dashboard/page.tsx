@@ -1,9 +1,5 @@
 function Dashboard() {
-    return (
-        <div className='w-full h-full bg-slate-100'>
-
-        </div>
-    )
+  return <div className="h-full w-full bg-slate-100"></div>;
 }
 
-export default Dashboard
+export default Dashboard;

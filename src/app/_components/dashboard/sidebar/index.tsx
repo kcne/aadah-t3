@@ -1,14 +1,12 @@
-'use client'
-import { buttonVariants } from "../../ui/button"
+"use client";
+import { buttonVariants } from "../../ui/button";
 import Link from "next/link";
 import { sidebarNavItems } from "../../shared/navbar/items/nav-items";
 import { cn } from "~/utils/utils";
-import { usePathname } from 'next/navigation'
-
-
+import { usePathname } from "next/navigation";
 
 export function Sidebar({ className }: React.HTMLAttributes<HTMLDivElement>) {
-    const pathname = usePathname();
+  const pathname = usePathname();
 
   return (
     <div className={cn("pb-12", className)}>
@@ -18,31 +16,29 @@ export function Sidebar({ className }: React.HTMLAttributes<HTMLDivElement>) {
             Explore
           </h2>
           <div className="space-y-1">
-          {
-            sidebarNavItems.map(((navItem,index)=>{
+            {sidebarNavItems.map((navItem, index) => {
               const href = navItem.href;
               return (
-                <Link 
-                key={index} 
-                href={href??'/dashboard'}
-                className={cn(buttonVariants({
-                  variant:pathname===navItem.href?"secondary":"ghost" 
-                }),"w-full justify-start")}
+                <Link
+                  key={index}
+                  href={href ?? "/dashboard"}
+                  className={cn(
+                    buttonVariants({
+                      variant:
+                        pathname === navItem.href ? "secondary" : "ghost",
+                    }),
+                    "w-full justify-start",
+                  )}
                 >
-                <navItem.icon className="mr-2 h-5 w-5"/>
+                  <navItem.icon className="mr-2 h-5 w-5" />
 
-                {navItem.title}
-              </Link>
-              )
-            }))
-          }
-
-            
+                  {navItem.title}
+                </Link>
+              );
+            })}
           </div>
         </div>
-
-
       </div>
     </div>
-  )
+  );
 }
