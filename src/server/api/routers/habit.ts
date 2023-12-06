@@ -18,11 +18,15 @@ const createHabitEntrySchema = z.object({
 
 
 const updateHabitSchema = z.object({
-  id: z.string().uuid().min(1),
+  id: z.string().min(1),
   title: z.string().min(2),
   description: z.string().min(2),
   priorityId: z.string().optional(),
 });
+
+const deleteHabitSchema =  z.object({
+  id:z.string().min(1)
+})
 
 
 export const habitRouter = createTRPCRouter({
@@ -41,7 +45,7 @@ export const habitRouter = createTRPCRouter({
 
   getAllHabits: protectedProcedure.query(async({ ctx }) => {
     return await ctx.db.habit.findMany({
-      orderBy: { createdAt: "desc" },
+      orderBy: { updatedAt: "desc" },
       where: { createdBy: { id: ctx.session.user.id } },
       include: {
         priority: true,
@@ -52,10 +56,6 @@ export const habitRouter = createTRPCRouter({
   updateHabit: protectedProcedure
   .input(updateHabitSchema)
   .mutation(async ({ ctx, input }) => {
-    // await ctx.db.habit.findUniqueOrThrow({
-    //   where:{id:input.id}
-    // })
-
     return await ctx.db.habit.update({
       where: { id: input.id },
       data: { 
@@ -65,9 +65,27 @@ export const habitRouter = createTRPCRouter({
         priority: input.priorityId? {connect: { id: input.priorityId}}:undefined,
       },
     })
-
   }),
 
+  deleteHabit: protectedProcedure
+  .input(deleteHabitSchema)
+  .mutation(async ({ ctx, input }) => {
+    return await ctx.db.$transaction(async (prisma) => {
+      const deleteHabitEntries = await prisma.habitEntry.deleteMany({
+        where: {
+          habitId: input.id,
+        }
+      });
+      const deleteHabit = await prisma.habit.deleteMany({
+        where: {
+          id: input.id
+        }
+      });
+  
+      return [deleteHabitEntries, deleteHabit];
+    });
+  }),
+  
   createHabitEntry: protectedProcedure
   .input(createHabitEntrySchema)
   .mutation(async ({ ctx, input }) => {
@@ -106,7 +124,9 @@ export const habitRouter = createTRPCRouter({
           // Get the current streak from the habit and increment it
           const currentHabit = await prisma.habit.findUnique({
             where: { id: input.habitId },
-            select: { currentStreak: true },
+            select: { 
+              currentStreak: true,
+            },
           });
           newStreak = currentHabit ? currentHabit.currentStreak + 1 : 1;
         }
@@ -115,7 +135,10 @@ export const habitRouter = createTRPCRouter({
       // Update the habit's current streak
       await prisma.habit.update({
         where: { id: input.habitId },
-        data: { currentStreak: newStreak },
+        data: { 
+          currentStreak: newStreak,
+          
+        },
       });
 
       return newEntry;

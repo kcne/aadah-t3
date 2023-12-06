@@ -4,21 +4,18 @@ import HabitCard from '~/app/_components/dashboard/habits/habit-card';
 import { Button } from '~/app/_components/ui/button';
 import { api } from '~/trpc/react'
 import { PlusSquare } from 'lucide-react';
-import { Dialog, DialogTrigger } from '~/app/_components/ui/dialog';
 import HabitDialog from '~/app/_components/dashboard/habits/habit-dialog';
 import { useState } from 'react';
 import type { HabitWithPriority } from '~/types';
+import { ScrollArea } from '~/app/_components/ui/scroll-area';
 
 function Habits({}) {
-  // const hello = await api.post.hello.query({ text: "from tRPC" });
   const {data:habits} = api.habit.getAllHabits.useQuery();
   const [open, setOpen] = useState<boolean>(false);
   const [selectedHabit, setSelectedHabit] = useState<HabitWithPriority | undefined>(undefined);
 
-  
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <>
     <div className='h-full w-full p-10 pt-5'>
 
       <Button variant="outline" onClick={()=>{
@@ -30,20 +27,23 @@ function Habits({}) {
       
       {
         habits &&
-        <div className='mx-auto w-full mt-5 flex flex-col justify-start border border-zinc-200 rounded-xl p-3'>
-          
+        <ScrollArea className='w-full h-[85%] mt-5 border border-zinc-200 rounded-xl p-3'>
+
+          <div className='grid lg:grid-cols-2 xl:grid-cols-3 gap-4 p-4 justify-center'>
           {
             habits.map(habit =>
                 <HabitCard key={habit.id} habit={habit} setSelectedHabit={setSelectedHabit} setOpen={setOpen}/>
               )
           }
+          </div>
 
-        </div>
+        </ScrollArea>
       }
 
     </div>
-    <HabitDialog setOpen={setOpen} habit={selectedHabit} setSelectedHabit={setSelectedHabit}/>
-    </Dialog>
+    <HabitDialog setOpen={setOpen} habit={selectedHabit} setSelectedHabit={setSelectedHabit} open={open}/>
+    </>
+
   )
 }
 
