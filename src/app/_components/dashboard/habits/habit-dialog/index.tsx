@@ -40,7 +40,9 @@ const habitFormSchema = z.object({
     message: "Description must be at least 2 characters.",
   }),
   priorityId: z.string().optional(),
-  metric: z.number().int().min(1),
+  action: z.string().min(2),
+  metricUnit: z.string().min(2),
+  metricQuantity: z.coerce.number().int().min(1),
 });
 
 interface Props {
@@ -82,8 +84,11 @@ function HabitDialog({ open, setOpen, habit, setSelectedHabit }: Props) {
 
   const defaultValues = {
     title: habit?.title ?? "",
+    action: habit?.action ?? "",
     description: habit?.description ?? "",
     priorityId: habit?.priorityId ?? "",
+    metricUnit: habit?.metricUnit ?? "",
+    metricQuantity: habit?.metricQuantity ?? undefined,
   };
 
   const habitForm = useForm<z.infer<typeof habitFormSchema>>({
@@ -97,6 +102,7 @@ function HabitDialog({ open, setOpen, habit, setSelectedHabit }: Props) {
   }, [habit]);
 
   function onSubmit(values: z.infer<typeof habitFormSchema>) {
+    console.log("submit");
     if (habit) {
       const dataWithId = {
         ...values,
@@ -105,6 +111,7 @@ function HabitDialog({ open, setOpen, habit, setSelectedHabit }: Props) {
       console.log("data", dataWithId);
       updateHabit.mutate(dataWithId);
     } else createNewHabit.mutate(values);
+
     setSelectedHabit(undefined);
   }
 
@@ -138,21 +145,47 @@ function HabitDialog({ open, setOpen, habit, setSelectedHabit }: Props) {
                 />
                 <FormField
                   control={habitForm.control}
-                  name="metric"
+                  name="action"
                   render={({ field }) => (
                     <FormItem className="mt-3">
-                      <FormLabel>Habit Description</FormLabel>
+                      <FormLabel>Action</FormLabel>
                       <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="Drink a glass of water"
-                          {...field}
-                        />
+                        <Input placeholder="Drink" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+                <div className="grid grid-cols-[1fr_2fr] grid-rows-1 gap-x-2">
+                  <FormField
+                    control={habitForm.control}
+                    name="metricQuantity"
+                    render={({ field }) => (
+                      <FormItem className="mt-3">
+                        <FormLabel>Metric Quantity</FormLabel>
+                        <FormControl>
+                          <Input placeholder="1" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={habitForm.control}
+                    name="metricUnit"
+                    render={({ field }) => (
+                      <FormItem className="mt-3">
+                        <FormLabel>Metric Unit</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Glass of water" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
                 <FormField
                   control={habitForm.control}
                   name="description"
@@ -161,7 +194,7 @@ function HabitDialog({ open, setOpen, habit, setSelectedHabit }: Props) {
                       <FormLabel>Habit Description</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Drink a glass of water"
+                          placeholder="Drinking a glass is good for your help."
                           {...field}
                         />
                       </FormControl>

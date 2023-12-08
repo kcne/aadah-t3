@@ -10,11 +10,13 @@ import type { HabitWithPriority } from "~/types";
 import { ScrollArea } from "~/app/_components/ui/scroll-area";
 
 function Habits({}) {
-  const { data: habits } = api.habit.getAllHabits.useQuery();
+  const { data: habits, error } = api.habit.getAllHabits.useQuery();
   const [open, setOpen] = useState<boolean>(false);
   const [selectedHabit, setSelectedHabit] = useState<
     HabitWithPriority | undefined
   >(undefined);
+
+  console.log(error);
 
   return (
     <>

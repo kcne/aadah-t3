@@ -10,6 +10,10 @@ const createHabitSchema = z.object({
   title: z.string().min(2),
   description: z.string().min(2),
   priorityId: z.string().optional(),
+  action: z.string().min(2),
+  metricUnit: z.string().min(2),
+  metricQuantity:z.number().int().min(1),
+
 });
 
 const createHabitEntrySchema = z.object({ 
@@ -22,6 +26,10 @@ const updateHabitSchema = z.object({
   title: z.string().min(2),
   description: z.string().min(2),
   priorityId: z.string().optional(),
+  action: z.string().min(2),
+  metricUnit: z.string().min(2),
+  metricQuantity:z.number().int().min(1),
+  
 });
 
 const deleteHabitSchema =  z.object({
@@ -30,15 +38,18 @@ const deleteHabitSchema =  z.object({
 
 
 export const habitRouter = createTRPCRouter({
-  createNewHabit: protectedProcedure
+createNewHabit: protectedProcedure
   .input(createHabitSchema)
-  .mutation(async ({ctx, input})=>{
+  .mutation(async ({ctx, input}) => {
     return await ctx.db.habit.create({
-      data:{
-        title:input.title,
-        description:input.description,
+      data: {
+        title: input.title,
+        description: input.description, 
+        action: input.action,
         createdBy: { connect: { id: ctx.session.user.id } },
-        priority: input.priorityId? {connect: { id: input.priorityId}}:undefined,
+        priority: input.priorityId ? { connect: { id: input.priorityId } } : undefined,
+        metricUnit: input.metricUnit,
+        metricQuantity:input.metricQuantity,
       }
     })
   }),
@@ -63,8 +74,11 @@ export const habitRouter = createTRPCRouter({
         description:input.description,
         createdBy: { connect: { id: ctx.session.user.id } },
         priority: input.priorityId? {connect: { id: input.priorityId}}:undefined,
-      },
-    })
+        action: input.action,
+        metricUnit: input.metricUnit,
+        metricQuantity:input.metricQuantity,
+    }
+  })
   }),
 
   deleteHabit: protectedProcedure
@@ -131,13 +145,12 @@ export const habitRouter = createTRPCRouter({
           newStreak = currentHabit ? currentHabit.currentStreak + 1 : 1;
         }
       }
-
+      
       // Update the habit's current streak
       await prisma.habit.update({
         where: { id: input.habitId },
         data: { 
           currentStreak: newStreak,
-          
         },
       });
 

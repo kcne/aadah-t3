@@ -3,10 +3,10 @@ import type { BaseHTMLAttributes } from "react";
 import { ArrowRight } from "lucide-react";
 
 import { cn } from "~/utils/utils";
-import { Button, buttonVariants } from "~/app/_components/ui/button";
+import { buttonVariants } from "~/app/_components/ui/button";
 import MobileNav from "../mobile-nav";
 import UserAccountNav from "../user-account-nav";
-import { Session } from "next-auth";
+import type { Session } from "next-auth";
 
 interface Props extends BaseHTMLAttributes<HTMLElement> {
   session: Session | null;

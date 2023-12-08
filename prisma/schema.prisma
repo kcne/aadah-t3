@@ -67,7 +67,6 @@ model VerificationToken {
 model Priority {
   id     String  @id @default(cuid())
   title  String
-  tailwindColor String?
   habits Habit[]
 }
 
@@ -75,18 +74,21 @@ model Habit {
   id               String       @id @default(cuid())
   title            String
   description      String?
+  action           String
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
   createdById      String
   priorityId       String?
   currentStreak    Int          @default(0)
-  lastStreakUpdate DateTime     @default(now())
   priority         Priority?    @relation(fields: [priorityId], references: [id])
   createdBy        User         @relation(fields: [createdById], references: [id])
   entries          HabitEntry[]
+  metricUnit       String 
+  metricQuantity   Int
 
   @@index([title])
 }
+
 
 model HabitEntry {
   id        String   @id @default(cuid())

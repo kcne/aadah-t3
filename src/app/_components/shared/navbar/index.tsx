@@ -2,7 +2,6 @@ import type { BaseHTMLAttributes } from "react";
 import MaxWidthWrapper from "../max-width-wrapper";
 import NavContent from "./nav-content/index";
 import { cn } from "~/utils/utils";
-import { api } from "~/trpc/server";
 import { getServerAuthSession } from "~/server/auth";
 
 interface Props extends BaseHTMLAttributes<HTMLElement> {
