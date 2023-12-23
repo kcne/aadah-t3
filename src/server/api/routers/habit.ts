@@ -1,44 +1,13 @@
-import { z } from "zod";
-
 import {
   createTRPCRouter,
   protectedProcedure,
 } from "~/server/api/trpc";
+import { createHabitEntrySchema, createHabitSchema, deleteHabitSchema, updateHabitSchema } from "~/server/validators/habit-schemas";
 
-
-const createHabitSchema = z.object({
-  title: z.string().min(2),
-  description: z.string().min(2),
-  priorityId: z.string().optional(),
-  action: z.string().min(2),
-  metricUnit: z.string().min(2),
-  metricQuantity:z.number().int().min(1),
-
-});
-
-const createHabitEntrySchema = z.object({ 
-  habitId: z.string().min(1) 
-});
-
-
-const updateHabitSchema = z.object({
-  id: z.string().min(1),
-  title: z.string().min(2),
-  description: z.string().min(2),
-  priorityId: z.string().optional(),
-  action: z.string().min(2),
-  metricUnit: z.string().min(2),
-  metricQuantity:z.number().int().min(1),
-  
-});
-
-const deleteHabitSchema =  z.object({
-  id:z.string().min(1)
-})
 
 
 export const habitRouter = createTRPCRouter({
-createNewHabit: protectedProcedure
+create: protectedProcedure
   .input(createHabitSchema)
   .mutation(async ({ctx, input}) => {
     return await ctx.db.habit.create({
@@ -54,7 +23,7 @@ createNewHabit: protectedProcedure
     })
   }),
 
-  getAllHabits: protectedProcedure.query(async({ ctx }) => {
+  getAll: protectedProcedure.query(async({ ctx }) => {
     return await ctx.db.habit.findMany({
       orderBy: { updatedAt: "desc" },
       where: { createdBy: { id: ctx.session.user.id } },
@@ -64,7 +33,7 @@ createNewHabit: protectedProcedure
     });
   }),
 
-  updateHabit: protectedProcedure
+  update: protectedProcedure
   .input(updateHabitSchema)
   .mutation(async ({ ctx, input }) => {
     return await ctx.db.habit.update({
@@ -81,7 +50,7 @@ createNewHabit: protectedProcedure
   })
   }),
 
-  deleteHabit: protectedProcedure
+  delete: protectedProcedure
   .input(deleteHabitSchema)
   .mutation(async ({ ctx, input }) => {
     return await ctx.db.$transaction(async (prisma) => {
@@ -100,7 +69,7 @@ createNewHabit: protectedProcedure
     });
   }),
   
-  createHabitEntry: protectedProcedure
+  createEntry: protectedProcedure
   .input(createHabitEntrySchema)
   .mutation(async ({ ctx, input }) => {
     // Start a transaction

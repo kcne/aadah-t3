@@ -58,10 +58,11 @@ function HabitDialog({ open, setOpen, habit, setSelectedHabit }: Props) {
   const { data: priorities } = api.priority.getAllPriorities.useQuery();
   const utils = api.useUtils();
 
-  const createNewHabit = api.habit.createNewHabit.useMutation({
+  const createNewHabit = api.habit.create.useMutation({
     onSuccess: async (data) => {
       toast.success(`${data.title} created successfully.`);
-      await utils.habit.getAllHabits.invalidate();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      await utils.habit.getAll.invalidate();
       habitForm.reset();
       setOpen(false);
     },
@@ -70,10 +71,11 @@ function HabitDialog({ open, setOpen, habit, setSelectedHabit }: Props) {
     },
   });
 
-  const updateHabit = api.habit.updateHabit.useMutation({
+  const updateHabit = api.habit.update.useMutation({
     onSuccess: async (data) => {
       toast.success(`${data.title} updated successfully.`);
-      await utils.habit.getAllHabits.invalidate();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      await utils.habit.getAll.invalidate();
       habitForm.reset();
       setOpen(false);
     },

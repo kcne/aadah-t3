@@ -54,20 +54,20 @@ function HabitCard({ habit, setSelectedHabit, setOpen }: Props) {
 
   const utils = api.useUtils();
 
-  const habitEntry = api.habit.createHabitEntry.useMutation({
+  const habitEntry = api.habit.createEntry.useMutation({
     onSuccess: async () => {
       toast.success(`${habit.title}`);
       load("/success.mp3", {
         autoplay: true,
       });
-      await utils.habit.getAllHabits.invalidate();
+      await utils.habit.getAll.invalidate();
     },
   });
 
-  const deleteHabitEntry = api.habit.deleteHabit.useMutation({
+  const deleteHabitEntry = api.habit.delete.useMutation({
     onSuccess: async () => {
       toast.success(`${habit.title} delete successfully`);
-      await utils.habit.getAllHabits.invalidate();
+      await utils.habit.getAll.invalidate();
     },
   });
 
