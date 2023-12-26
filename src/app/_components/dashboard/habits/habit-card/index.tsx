@@ -32,7 +32,8 @@ import DeleteModal from '~/app/_components/shared/modals/delete-modal';
 import { useState } from 'react';
 import { ProgressCircle } from '@tremor/react';
 import { BASE_XP, GROWTH_RATE } from '~/env';
-import { getLevelProgressColor } from '../level-colors';
+import { getLevelProgressColor } from '~/utils/levelProgressColors';
+
 
 interface Props {
   habit: HabitWithPriority;
@@ -69,7 +70,6 @@ function HabitCard({ habit, setSelectedHabit, setOpen }: Props) {
     ((currentXp - xpStartCurrentLevel) /
       (xpForNextLevel - xpStartCurrentLevel)) *
     100;
-
 
   const { load } = useGlobalAudioPlayer();
 

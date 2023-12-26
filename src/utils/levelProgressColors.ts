@@ -1,4 +1,4 @@
-export function getLevelProgressColor(level:number){
+export  function getLevelProgressColor(level:number){
     switch(true){
         case (level<5):
             return 'red';
