@@ -72,35 +72,44 @@ model Priority {
   habits Habit[]
 }
 
-model Habit {
-  id               String       @id @default(cuid())
-  title            String
-  description      String?
-  action           String
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
-  createdById      String
-  priorityId       String?
-  currentStreak    Int          @default(0)
-  priority         Priority?    @relation(fields: [priorityId], references: [id])
-  createdBy        User         @relation(fields: [createdById], references: [id])
-  entries          HabitEntry[]
-  metricUnit       String 
-  metricQuantity   Int
+  model Habit {
+    id               String       @id @default(cuid())
+    title            String
+    description      String?
+    action           String
+    createdAt        DateTime     @default(now())
+    updatedAt        DateTime     @updatedAt
+    createdById      String
+    priorityId       String?
+    currentStreak    Int          @default(0)
+    priority         Priority?    @relation(fields: [priorityId], references: [id])
+    createdBy        User         @relation(fields: [createdById], references: [id])
+    entries          HabitEntry[]
+    metricUnit       String 
+    metricQuantity   Int
+    level            Int      @default(1)
+    experience       Int      @default(0)
 
-  @@index([title])
-}
+    @@index([title])
+  }
+
+  model Reward {
+    id String @id @default(cuid())
+    level Int?
+    streak Int?
+    description String
+  }
 
 
-model HabitEntry {
-  id        String   @id @default(cuid())
-  habitId   String
-  timestamp DateTime @default(now())
-  habit     Habit    @relation(fields: [habitId], references: [id])
+  model HabitEntry {
+    id        String   @id @default(cuid())
+    habitId   String
+    timestamp DateTime @default(now())
+    habit     Habit    @relation(fields: [habitId], references: [id])
 
-  @@index([timestamp])
-  @@index([habitId])
-}
+    @@index([timestamp])
+    @@index([habitId])
+  }
 model JournalEntry {
   id            String @id @default(cuid())
   title         String 

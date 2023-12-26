@@ -65,3 +65,6 @@ export const env = createEnv({
    */
   emptyStringAsUndefined: true,
 });
+
+export const BASE_XP = 15;
+export const GROWTH_RATE = 1.5;

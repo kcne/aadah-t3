@@ -10,7 +10,9 @@
     "dev": "next dev",
     "postinstall": "prisma generate",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write --list-different ."
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.2",
@@ -71,6 +73,8 @@
     "@typescript-eslint/parser": "^6.11.0",
     "autoprefixer": "^10.4.14",
     "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "5.0.0",
     "postcss": "^8.4.31",
     "prettier": "^3.1.0",
     "prettier-plugin-tailwindcss": "^0.5.7",

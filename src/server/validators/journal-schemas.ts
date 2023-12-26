@@ -11,13 +11,12 @@ export const JSONContentSchema = z.object({
 
 export const createJournalEntrySchema = z.object({
   title: z.string(),
-
   jsonContent: z.any(), // Accepts a JSON object or null
 });
 
 export const updateJournalEntrySchema = z.object({
   id: z.string().min(1),
   title: z.string().min(2),
-  JSONContent:JSONContentSchema,
+  jsonContent: z.any(), // Accepts a JSON object or null
 });
 

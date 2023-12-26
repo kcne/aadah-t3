@@ -1,8 +1,11 @@
+import { BASE_XP, GROWTH_RATE } from "~/env";
 import {
   createTRPCRouter,
   protectedProcedure,
 } from "~/server/api/trpc";
 import { createHabitEntrySchema, createHabitSchema, deleteHabitSchema, updateHabitSchema } from "~/server/validators/habit-schemas";
+
+
 
 
 
@@ -115,13 +118,34 @@ create: protectedProcedure
         }
       }
       
-      // Update the habit's current streak
+
+      // const xpForNextLevel = BASE_XP * input
+
+      const habit = await prisma.habit.findUnique({
+      where: { id: input.habitId },
+      select: {
+        level: true,
+        experience: true,
+      },
+    });
+
+    if (habit) {
+      const baseXp = BASE_XP; // Define BASE_XP, e.g., 100
+      const growthRate = GROWTH_RATE; // Define GROWTH_RATE, e.g., 1.5
+      const xpForNextLevel = baseXp * Math.pow(growthRate, habit.level);
+
+      const newXp = habit.experience + baseXp;
+      const isLevelUp = newXp >= xpForNextLevel;
+
       await prisma.habit.update({
         where: { id: input.habitId },
-        data: { 
+        data: {
+          experience: { increment: BASE_XP },
+          ...(isLevelUp && { level: { increment: 1 } }),
           currentStreak: newStreak,
         },
       });
+    }
 
       return newEntry;
     });

@@ -2,7 +2,7 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "~/server/api/trpc";
-import { createJournalEntrySchema } from "~/server/validators/journal-schemas";
+import { createJournalEntrySchema, updateJournalEntrySchema } from "~/server/validators/journal-schemas";
 
 
 
@@ -45,6 +45,20 @@ export const journalRouter = createTRPCRouter({
         }
       })
     }),
+
+  updateJournalEntry: protectedProcedure
+  .input(updateJournalEntrySchema)
+  .mutation(async ({ ctx, input }) => {
+    return await ctx.db.journalEntry.update({
+      where: { id: input.id },
+      data: { 
+        title:input.title,
+        createdBy: { connect: { id: ctx.session.user.id } },
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        jsonContent:input.jsonContent,
+    }
+  })
+  }),
 });
 
 

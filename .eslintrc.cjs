@@ -9,6 +9,8 @@ const config = {
     "plugin:@next/next/recommended",
     "plugin:@typescript-eslint/recommended-type-checked",
     "plugin:@typescript-eslint/stylistic-type-checked",
+    "next/core-web-vitals", 
+    "prettier"
   ],
   rules: {
     // These opinionated rules are enabled in stylistic-type-checked above.
