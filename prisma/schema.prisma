@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+
 }
 
 model Post {
@@ -54,6 +55,7 @@ model User {
   habits        Habit[]
   posts         Post[]
   sessions      Session[]
+  journalEntries JournalEntry[]
 }
 
 model VerificationToken {
@@ -99,3 +101,16 @@ model HabitEntry {
   @@index([timestamp])
   @@index([habitId])
 }
+model JournalEntry {
+  id            String @id @default(cuid())
+  title         String 
+  createdById   String
+  createdBy     User  @relation(fields: [createdById], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  // JSONContent   JSONContent?
+  jsonContent   Json 
+}
+
+
+
